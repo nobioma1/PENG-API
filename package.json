@@ -1,0 +1,38 @@
+{
+  "name": "peng-api",
+  "version": "1.0.0",
+  "description": "Backend API. A Fashion Designers' Workspace Management app",
+  "main": "index.js",
+  "repository": "https://github.com/nobioma1/PENG-API.git",
+  "author": "Noble Obioma <nobioma1@gmail.com>",
+  "license": "MIT",
+  "scripts": {
+    "prettier": "prettier \"**/*.{js,json}\"",
+    "format": "yarn run prettier -- --write",
+    "lint": "eslint",
+    "lint:fix": "yarn run lint -- --fix",
+    "validate": "yarn run prettier -- --list-different && yarn run lint"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "yarn lint-staged"
+    }
+  },
+  "lint-staged": {
+    "**/*.{js}": [
+      "yarn run format",
+      "yarn run lint:fix",
+      "git add"
+    ]
+  },
+  "devDependencies": {
+    "eslint": "^6.7.1",
+    "eslint-config-airbnb-base": "^14.0.0",
+    "eslint-config-prettier": "^6.7.0",
+    "eslint-plugin-import": "^2.18.2",
+    "eslint-plugin-jest": "^23.0.5",
+    "husky": "^3.1.0",
+    "lint-staged": "^9.5.0",
+    "prettier": "^1.19.1"
+  }
+}
