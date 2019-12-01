@@ -7,6 +7,7 @@
   "author": "Noble Obioma <nobioma1@gmail.com>",
   "license": "MIT",
   "scripts": {
+    "dev:server": "nodemon src/index.js",
     "prettier": "prettier \"**/*.{js,json}\"",
     "format": "yarn run prettier -- --write",
     "lint": "eslint",
@@ -33,6 +34,14 @@
     "eslint-plugin-jest": "^23.0.5",
     "husky": "^3.1.0",
     "lint-staged": "^9.5.0",
+    "nodemon": "^2.0.1",
     "prettier": "^1.19.1"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^8.2.0",
+    "express": "^4.17.1",
+    "helmet": "^3.21.2",
+    "mongoose": "^5.7.13"
   }
 }
