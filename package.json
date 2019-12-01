@@ -7,6 +7,7 @@
   "author": "Noble Obioma <nobioma1@gmail.com>",
   "license": "MIT",
   "scripts": {
+    "start": "node src/index.js",
     "dev:server": "nodemon src/index.js",
     "prettier": "prettier \"**/*.{js,json}\"",
     "format": "yarn run prettier -- --write",
