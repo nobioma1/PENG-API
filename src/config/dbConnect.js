@@ -1,11 +1,13 @@
 /* eslint-disable no-console */
 const mongoose = require('mongoose');
+const { databaseURL } = require('../config');
 
 function connectDb() {
   return mongoose
-    .connect(process.env.DATABASE_URL, {
+    .connect(databaseURL, {
       useNewUrlParser: true,
       useUnifiedTopology: true,
+      useCreateIndex: true, // Remove useCreateIndex deprecation error
     })
     .then(() => {
       console.log('Database Connection Established');
