@@ -1,3 +1,4 @@
+/* eslint-disable func-names */
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 
@@ -19,6 +20,10 @@ const UserSchema = new mongoose.Schema(
       required: true,
       trim: true,
     },
+    passwordResetToken: {
+      type: String,
+      default: null,
+    },
     isActive: {
       type: Boolean,
       default: false,
@@ -39,6 +44,7 @@ UserSchema.pre('save', function(next) {
 UserSchema.methods.toJSON = function() {
   const obj = this.toObject();
   delete obj.password;
+  delete obj.passwordResetToken;
   return obj;
 };
 
