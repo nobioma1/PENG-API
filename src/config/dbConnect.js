@@ -7,6 +7,7 @@ function connectDb() {
     .connect(databaseURL, {
       useNewUrlParser: true,
       useUnifiedTopology: true,
+      useFindAndModify: false,
       useCreateIndex: true, // Remove useCreateIndex deprecation error
     })
     .then(() => {
