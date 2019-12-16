@@ -1,11 +1,35 @@
 const authRouter = require('express').Router();
 
-const { signUp, login } = require('../auth/authController');
+const authController = require('../auth/authController');
+const authSchema = require('./authSchema');
+const authMiddleware = require('./authMiddleware');
 const validate = require('../../utils/validate');
-const { signUpSchema, loginSchema } = require('./authSchema');
-const { emailDoesExists, userExists } = require('./authMiddleware');
 
-authRouter.post('/signup', validate(signUpSchema), emailDoesExists, signUp);
-authRouter.post('/login', validate(loginSchema), userExists, login);
+authRouter.post(
+  '/signup',
+  validate(authSchema.signUpSchema),
+  authMiddleware.emailDoesExists,
+  authMiddleware.signUpCheckPasswords,
+  authController.signUp,
+);
+authRouter.post(
+  '/login',
+  validate(authSchema.loginSchema),
+  authMiddleware.userExists,
+  authController.login,
+);
+authRouter.post(
+  '/forgot-password',
+  validate(authSchema.forgotPwdSchema),
+  authMiddleware.userExists,
+  authController.forgotPassword,
+);
+authRouter.post(
+  '/reset-password',
+  validate(authSchema.resetPwdSchema),
+  authMiddleware.validateResetToken,
+  authMiddleware.resetCheckPassword,
+  authController.resetPassword,
+);
 
 module.exports = authRouter;
