@@ -9,15 +9,20 @@
   "scripts": {
     "start": "node src/index.js",
     "dev:server": "nodemon src/index.js",
+    "test": "cross-env NODE_ENV=test jest",
     "prettier": "prettier \"**/*.{js,json}\"",
     "format": "yarn run prettier -- --write",
     "lint": "eslint",
     "lint:fix": "yarn run lint -- --fix",
     "validate": "yarn run prettier -- --list-different && yarn run lint"
   },
+  "jest": {
+    "testEnvironment": "node"
+  },
   "husky": {
     "hooks": {
-      "pre-commit": "yarn lint-staged"
+      "pre-commit": "yarn lint-staged",
+      "pre-push": "yarn test"
     }
   },
   "lint-staged": {
@@ -28,21 +33,30 @@
     ]
   },
   "devDependencies": {
+    "cross-env": "^6.0.3",
     "eslint": "^6.7.1",
     "eslint-config-airbnb-base": "^14.0.0",
     "eslint-config-prettier": "^6.7.0",
     "eslint-plugin-import": "^2.18.2",
     "eslint-plugin-jest": "^23.0.5",
     "husky": "^3.1.0",
+    "jest": "^24.9.0",
     "lint-staged": "^9.5.0",
     "nodemon": "^2.0.1",
-    "prettier": "^1.19.1"
+    "prettier": "^1.19.1",
+    "supertest": "^4.0.2"
   },
   "dependencies": {
+    "@hapi/joi": "^16.1.8",
+    "@sendgrid/mail": "^6.4.0",
+    "bcryptjs": "^2.4.3",
     "cors": "^2.8.5",
+    "cryptr": "^6.0.1",
     "dotenv": "^8.2.0",
     "express": "^4.17.1",
     "helmet": "^3.21.2",
+    "jsonwebtoken": "^8.5.1",
+    "mailgen": "^2.0.10",
     "mongoose": "^5.7.13"
   }
 }

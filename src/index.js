@@ -1,8 +1,7 @@
 /* eslint-disable no-console */
 const server = require('./api/server');
-const { connectDb } = require('./api/db/connect');
-
-const PORT = process.env.PORT || 5000;
+const { connectDb } = require('./config/dbConnect');
+const { PORT } = require('./config');
 
 connectDb()
   .then(connected => {
