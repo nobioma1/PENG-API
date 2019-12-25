@@ -20,10 +20,6 @@ const UserSchema = new mongoose.Schema(
       required: true,
       trim: true,
     },
-    passwordResetToken: {
-      type: String,
-      default: null,
-    },
     isActive: {
       type: Boolean,
       default: false,
