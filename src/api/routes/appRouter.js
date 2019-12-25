@@ -1,7 +1,7 @@
 const appRouter = require('express').Router();
 
-const authRouter = require('../auth/authRouter');
-const userRouter = require('../users/userRouter');
+const authRouter = require('../../resources/auth/authRouter');
+const userRouter = require('../../resources/users/userRouter');
 
 appRouter.use('/auth', authRouter);
 appRouter.use('/users', userRouter);
