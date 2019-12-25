@@ -1,10 +1,10 @@
 /* eslint-disable no-console */
 const mongoose = require('mongoose');
-const { databaseURL } = require('../config');
+const { DATABASE_URL } = require('../config');
 
 function connectDb() {
   return mongoose
-    .connect(databaseURL, {
+    .connect(DATABASE_URL, {
       useNewUrlParser: true,
       useUnifiedTopology: true,
       useFindAndModify: false,
