@@ -20,6 +20,10 @@ const UserSchema = new mongoose.Schema(
       required: true,
       trim: true,
     },
+    imageURL: {
+      type: String,
+      trim: true,
+    },
     isActive: {
       type: Boolean,
       default: false,

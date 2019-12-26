@@ -17,6 +17,7 @@ const signUpSchema = Joi.object({
     .label('Confirm Password')
     .pattern(/^[a-zA-Z0-9]{3,30}$/)
     .required(),
+  imageURL: Joi.string().label('Image URL'),
 });
 
 const loginSchema = Joi.object({
