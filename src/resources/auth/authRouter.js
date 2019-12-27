@@ -31,7 +31,7 @@ authRouter.post(
   authMiddleware.resetCheckPassword,
   authController.resetPassword,
 );
-authRouter.post(
+authRouter.get(
   '/confirm_user/:token',
   authMiddleware.checkConfirmToken,
   authController.confirmUser,
