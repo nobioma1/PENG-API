@@ -20,11 +20,20 @@ const UserSchema = new mongoose.Schema(
       required: true,
       trim: true,
     },
+    imageURL: {
+      type: String,
+      trim: true,
+    },
     isActive: {
       type: Boolean,
       default: false,
     },
-    workspaces: [mongoose.Schema.Types.ObjectId],
+    workspaces: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'workspace',
+      },
+    ],
   },
   {
     timestamps: true,

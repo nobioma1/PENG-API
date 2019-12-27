@@ -15,14 +15,16 @@ function emailDoesExists(req, res, next) {
   });
 }
 
-function userExists(req, res, next) {
-  User.findOne({ email: req.body.email }, (err, user) => {
-    if (!user) {
-      return res.status(400).json({ error: 'Invalid Email or Password' });
-    }
+async function userEmailExists(req, res, next) {
+  const user = await User.findOne({
+    email: req.body.email,
+  }).populate('workspace');
+
+  if (user) {
     req.user = user;
     return next();
-  });
+  }
+  return res.status(400).json({ error: 'User with email does not exist' });
 }
 
 function signUpCheckPasswords(req, res, next) {
@@ -112,7 +114,7 @@ function validateAuthToken(req, res, next) {
 
 module.exports = {
   emailDoesExists,
-  userExists,
+  userEmailExists,
   validateResetToken,
   signUpCheckPasswords,
   resetCheckPassword,

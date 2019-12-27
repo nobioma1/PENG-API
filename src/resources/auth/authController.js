@@ -51,7 +51,7 @@ async function resendVerification(req, res) {
         userId: user.id,
         token: vToken,
       },
-      { upsert: true },
+      { upsert: true, new: true },
     ).lean();
 
     const confirmToken = encrypt(verify.token);
@@ -94,6 +94,7 @@ async function login(req, res) {
 
 async function forgotPassword(req, res) {
   const { user } = req;
+
   try {
     const rToken = Crypto.randomBytes(20).toString('hex');
     const reset = await PasswordReset.findOneAndUpdate(
@@ -102,7 +103,7 @@ async function forgotPassword(req, res) {
         userId: user.id,
         token: rToken,
       },
-      { upsert: true },
+      { upsert: true, new: true },
     ).lean();
 
     const resetToken = encrypt(reset.token);

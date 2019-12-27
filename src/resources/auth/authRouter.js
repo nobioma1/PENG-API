@@ -1,6 +1,6 @@
 const authRouter = require('express').Router();
 
-const authController = require('../auth/authController');
+const authController = require('./authController');
 const authSchema = require('./authSchema');
 const authMiddleware = require('./authMiddleware');
 const validate = require('../../utils/validate');
@@ -15,13 +15,13 @@ authRouter.post(
 authRouter.post(
   '/login',
   validate(authSchema.loginSchema),
-  authMiddleware.userExists,
+  authMiddleware.userEmailExists,
   authController.login,
 );
 authRouter.post(
   '/forgot_password',
   validate(authSchema.forgotPwdSchema),
-  authMiddleware.userExists,
+  authMiddleware.userEmailExists,
   authController.forgotPassword,
 );
 authRouter.post(
@@ -31,7 +31,7 @@ authRouter.post(
   authMiddleware.resetCheckPassword,
   authController.resetPassword,
 );
-authRouter.post(
+authRouter.get(
   '/confirm_user/:token',
   authMiddleware.checkConfirmToken,
   authController.confirmUser,
