@@ -7,7 +7,7 @@ const appRouter = require('./routes/appRouter');
 
 const server = express();
 
-server.use(express.urlencoded({ extended: false }));
+server.use(express.json());
 server.use(helmet());
 server.use(cors());
 
