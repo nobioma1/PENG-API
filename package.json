@@ -9,15 +9,19 @@
   "scripts": {
     "start": "node src/index.js",
     "dev:server": "nodemon src/index.js",
-    "test": "cross-env NODE_ENV=test jest",
+    "test": "cross-env NODE_ENV=test jest --verbose",
     "prettier": "prettier \"**/*.{js,json}\"",
     "format": "yarn run prettier -- --write",
     "lint": "eslint",
     "lint:fix": "yarn run lint -- --fix",
-    "validate": "yarn run prettier -- --list-different && yarn run lint"
+    "validate": "yarn run prettier -- --list-different && yarn run lint",
+    "coverage": "yarn test --coverage"
   },
   "jest": {
-    "testEnvironment": "node"
+    "testEnvironment": "node",
+    "setupFilesAfterEnv": [
+      "./src/config/tests/setup.js"
+    ]
   },
   "husky": {
     "hooks": {
