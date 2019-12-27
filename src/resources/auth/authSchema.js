@@ -53,16 +53,9 @@ const resetPwdSchema = Joi.object({
     .required(),
 });
 
-const confirmSchema = Joi.object({
-  email: Joi.string()
-    .label('Confirm token')
-    .required(),
-});
-
 module.exports = {
   signUpSchema,
   loginSchema,
   forgotPwdSchema,
   resetPwdSchema,
-  confirmSchema,
 };
