@@ -28,7 +28,12 @@ const UserSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
-    workspaces: [mongoose.Schema.Types.ObjectId],
+    workspaces: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'workspace',
+      },
+    ],
   },
   {
     timestamps: true,
