@@ -9,7 +9,7 @@
   "scripts": {
     "start": "node src/index.js",
     "dev:server": "nodemon src/index.js",
-    "test": "cross-env NODE_ENV=test jest --verbose",
+    "test": "cross-env NODE_ENV=test jest --verbose --runInBand",
     "prettier": "prettier \"**/*.{js,json}\"",
     "format": "yarn run prettier -- --write",
     "lint": "eslint",
