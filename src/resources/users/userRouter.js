@@ -1,5 +1,8 @@
 const userRouter = require('express').Router();
 
-userRouter.get('/', (req, res) => res.send('<h1>My People</h1>'));
+const userController = require('./userController');
+const userMiddleware = require('./userMiddleware');
+
+userRouter.get('/', userMiddleware.userExists, userController.getProfile);
 
 module.exports = userRouter;
