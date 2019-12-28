@@ -21,11 +21,10 @@ const testUserReset = {
 
 describe('Auth/', () => {
   describe('Signup [POST] /api/v1/auth/signup', () => {
-    it('should validate request body', async () => {
+    it('should validate request body', async done => {
       const response = await request.post('/api/v1/auth/signup').send({});
-      expect.assertions(3);
+      expect.assertions(2);
       expect(response.status).toBe(400);
-      expect(response.body.error).toHaveLength(4);
       expect(response.body.error).toEqual(
         expect.arrayContaining([
           'Name is required',
@@ -34,9 +33,10 @@ describe('Auth/', () => {
           'Confirm Password is required',
         ]),
       );
+      done();
     });
 
-    it('should check if passwords match', async () => {
+    it('should check if passwords match', async done => {
       const response = await request.post('/api/v1/auth/signup').send({
         ...testUser,
         confirmPassword: 'wrongMatch',
@@ -46,36 +46,35 @@ describe('Auth/', () => {
       expect(response.body).toEqual({
         error: 'Passwords does not match',
       });
+      done();
     });
 
-    it('should create user', async () => {
+    it('should create user', async done => {
       const response = await request.post('/api/v1/auth/signup').send(testUser);
-      expect.assertions(10);
+      expect.assertions(6);
       expect(response.status).toBe(201);
       expect(response.body).toHaveProperty('token');
-      expect(response.body).toHaveProperty('user');
-      expect(response.body.user).toHaveProperty('_id');
       expect(response.body.user).toHaveProperty('isActive');
       expect(response.body.user).toHaveProperty('workspaces');
       expect(response.body.user).not.toHaveProperty('password');
-      expect(response.body.user.name).toBe(testUser.name);
       expect(response.body.user.email).toBe(testUser.email);
-      expect(response.body.user.imageURL).toBe(testUser.imageURL);
+      done();
     });
 
-    it('should not create user with existing email', async () => {
-      await request.post('/api/v1/auth/signup').send(testUser);
+    it('should not create user with existing email', async done => {
+      await User.create(testUser);
       const response = await request.post('/api/v1/auth/signup').send(testUser);
       expect.assertions(2);
       expect(response.status).toBe(400);
       expect(response.body).toEqual({
         error: 'User with Email Address already exists',
       });
+      done();
     });
   });
 
   describe('Login [POST] /api/v1/auth/login', () => {
-    it('should validate request body', async () => {
+    it('should validate request body', async done => {
       const response = await request.post('/api/v1/auth/login').send({});
       expect.assertions(3);
       expect(response.status).toBe(400);
@@ -86,9 +85,10 @@ describe('Auth/', () => {
           'Password is required',
         ]),
       );
+      done();
     });
 
-    it('should check if user with email exits', async () => {
+    it('should check if user with email exits', async done => {
       const response = await request.post('/api/v1/auth/login').send({
         email: testUser.email,
         password: testUser.password,
@@ -98,30 +98,28 @@ describe('Auth/', () => {
       expect(response.body).toEqual({
         error: 'User with email does not exist',
       });
+      done();
     });
 
-    it('should Login user', async () => {
-      await request.post('/api/v1/auth/signup').send(testUser);
+    it('should Login user', async done => {
+      await User.create(testUser);
       const response = await request.post('/api/v1/auth/login').send({
         email: testUser.email,
         password: testUser.password,
       });
-      expect.assertions(10);
+      expect.assertions(6);
       expect(response.status).toBe(200);
       expect(response.body).toHaveProperty('token');
-      expect(response.body).toHaveProperty('user');
-      expect(response.body.user).toHaveProperty('_id');
       expect(response.body.user).toHaveProperty('isActive');
       expect(response.body.user).toHaveProperty('workspaces');
       expect(response.body.user).not.toHaveProperty('password');
       expect(response.body.user.name).toBe(testUser.name);
-      expect(response.body.user.email).toBe(testUser.email);
-      expect(response.body.user.imageURL).toBe(testUser.imageURL);
+      done();
     });
   });
 
   describe('Verify User [GET] /api/v1/confirm_user/:token', () => {
-    it('should validate confirmation token if valid token is provided', async () => {
+    it('should validate confirmation token if valid token is provided', async done => {
       const token = encrypt(Crypto.randomBytes(20).toString('hex'));
       const response = await request.get(`/api/v1/auth/confirm_user/${token}`);
       expect.assertions(2);
@@ -129,9 +127,10 @@ describe('Auth/', () => {
       expect(response.body).toEqual({
         error: 'Cannot Confirm user, Invalid or Expired Token',
       });
+      done();
     });
 
-    it('should catch error if bad confirmation token is provided', async () => {
+    it('should catch error if bad confirmation token is provided', async done => {
       const token = 'Not a confirmation Token';
       const response = await request.get(`/api/v1/auth/confirm_user/${token}`);
       expect.assertions(2);
@@ -139,30 +138,29 @@ describe('Auth/', () => {
       expect(response.body).toEqual({
         error: 'Invalid Token',
       });
+      done();
     });
 
-    it('should verify User', async () => {
+    it('should verify User', async done => {
       await request.post('/api/v1/auth/signup').send(testUser);
       const [verify] = await VerifyToken.find().lean();
       const token = encrypt(verify.token);
       const verifyResponse = await request.get(
         `/api/v1/auth/confirm_user/${token}`,
       );
-      const userResponse = await request.post('/api/v1/auth/login').send({
-        email: testUser.email,
-        password: testUser.password,
-      });
+      const user = await User.findById(verify.userId).lean();
       expect.assertions(3);
       expect(verifyResponse.status).toBe(200);
       expect(verifyResponse.body).toEqual({
         message: `User with email '${testUser.email} confirmed`,
       });
-      expect(userResponse.body.user.isActive).toBeTruthy();
+      expect(user.isActive).toBeTruthy();
+      done();
     });
   });
 
   describe('Forgot Password [POST] /api/v1/auth/forgot_password', () => {
-    it('should validate request body, email is required', async () => {
+    it('should validate request body, email is required', async done => {
       const response = await request
         .post(`/api/v1/auth/forgot_password`)
         .send({});
@@ -172,9 +170,10 @@ describe('Auth/', () => {
       expect(response.body.error).toEqual(
         expect.arrayContaining(['Email Address is required']),
       );
+      done();
     });
 
-    it('should check if user email exists', async () => {
+    it('should check if user email exists', async done => {
       const response = await request
         .post(`/api/v1/auth/forgot_password`)
         .send({ email: 'wrongtestuser@email.com' });
@@ -183,9 +182,10 @@ describe('Auth/', () => {
       expect(response.body).toEqual({
         error: 'User with email does not exist',
       });
+      done();
     });
 
-    it('should create token for forgot password', async () => {
+    it('should create token for forgot password', async done => {
       const signupRes = await request
         .post('/api/v1/auth/signup')
         .send(testUser);
@@ -202,11 +202,12 @@ describe('Auth/', () => {
         message: `Password reset email sent to '${testUser.email}' 📨.`,
       });
       expect(reset).not.toBeNull();
+      done();
     });
   });
 
   describe('Reset Password [POST] /api/v1/auth/reset_password/:token', () => {
-    it('should validate request body', async () => {
+    it('should validate request body', async done => {
       const response = await request
         .post(`/api/v1/auth/reset_password/5e0652b937e89614f14aac18`)
         .send({});
@@ -220,9 +221,10 @@ describe('Auth/', () => {
           'Confirm New Password is required',
         ]),
       );
+      done();
     });
 
-    it('should catch error if bad reset token is provided', async () => {
+    it('should catch error if bad reset token is provided', async done => {
       const token = 'Not a reset Token';
       const response = await request
         .post(`/api/v1/auth/reset_password/${token}`)
@@ -232,9 +234,10 @@ describe('Auth/', () => {
       expect(response.body).toEqual({
         error: 'Invalid Token',
       });
+      done();
     });
 
-    it('should validate reset token if valid token is provided', async () => {
+    it('should validate reset token if valid token is provided', async done => {
       const token = encrypt(Crypto.randomBytes(20).toString('hex'));
       const response = await request
         .post(`/api/v1/auth/reset_password/${token}`)
@@ -244,9 +247,10 @@ describe('Auth/', () => {
       expect(response.body).toEqual({
         error: 'Cannot Reset Password, Invalid or Expired Token',
       });
+      done();
     });
 
-    it('should confirm if old password match', async () => {
+    it('should confirm if old password match', async done => {
       await request.post('/api/v1/auth/signup').send(testUser);
       await request
         .post(`/api/v1/auth/forgot_password`)
@@ -264,10 +268,11 @@ describe('Auth/', () => {
       expect(response.body).toEqual({
         error: 'Password does not match',
       });
+      done();
     });
 
-    it('should confirm if passwords match', async () => {
-      await request.post('/api/v1/auth/signup').send(testUser);
+    it('should confirm if passwords match', async done => {
+      await User.create(testUser);
       await request
         .post(`/api/v1/auth/forgot_password`)
         .send({ email: testUser.email });
@@ -284,10 +289,11 @@ describe('Auth/', () => {
       expect(response.body).toEqual({
         error: 'Passwords does not match',
       });
+      done();
     });
 
-    it('should validate provided token is for a valid user', async () => {
-      await request.post('/api/v1/auth/signup').send(testUser);
+    it('should validate provided token is for a valid user', async done => {
+      await User.create(testUser);
       await request
         .post(`/api/v1/auth/forgot_password`)
         .send({ email: testUser.email });
@@ -302,10 +308,11 @@ describe('Auth/', () => {
       expect(response.body).toEqual({
         error: 'Cannot Reset Password, Invalid User',
       });
+      done();
     });
 
-    it('should change user password', async () => {
-      await request.post('/api/v1/auth/signup').send(testUser);
+    it('should change user password', async done => {
+      await User.create(testUser);
       await request
         .post(`/api/v1/auth/forgot_password`)
         .send({ email: testUser.email });
@@ -324,20 +331,22 @@ describe('Auth/', () => {
         message: 'Password Updated',
       });
       expect(loginRes.status).toBe(200);
+      done();
     });
   });
 
   describe('Resend Verify [GET] /api/v1/auth/resend_verify', () => {
-    it('should require Authorization token', async () => {
+    it('should require Authorization token', async done => {
       const response = await request.get(`/api/v1/auth/resend_verify`);
       expect.assertions(2);
       expect(response.status).toBe(401);
       expect(response.body).toEqual({
         error: 'Provide a valid authorization token',
       });
+      done();
     });
 
-    it('should check if user is already active', async () => {
+    it('should check if user is already active', async done => {
       const userRes = await request.post('/api/v1/auth/signup').send(testUser);
       await User.findByIdAndUpdate(
         // eslint-disable-next-line no-underscore-dangle
@@ -352,9 +361,10 @@ describe('Auth/', () => {
       expect(response.body).toEqual({
         error: 'User is already active',
       });
+      done();
     });
 
-    it('should resend verification token', async () => {
+    it('should resend verification token', async done => {
       const userRes = await request.post('/api/v1/auth/signup').send(testUser);
       const response = await request
         .get(`/api/v1/auth/resend_verify`)
@@ -364,6 +374,7 @@ describe('Auth/', () => {
       expect(response.body).toEqual({
         message: `Verification token resent to ${userRes.body.user.email}`,
       });
+      done();
     });
   });
 });
