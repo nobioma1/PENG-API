@@ -12,8 +12,17 @@ const WorkspaceSchema = new mongoose.Schema(
       type: String,
       trim: true,
     },
-    members: [mongoose.Schema.Types.ObjectId],
-    owner: mongoose.Schema.Types.ObjectId,
+    members: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'user',
+      },
+    ],
+    owner: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'user',
+      required: true,
+    },
   },
   {
     timestamps: true,
