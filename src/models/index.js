@@ -3,6 +3,9 @@ const VerifyToken = require('./VerifyToken');
 const PasswordReset = require('./PasswordReset');
 const Workspace = require('./Workspace');
 const WorkspaceInvite = require('./WorkspaceInvite');
+const Client = require('./Client');
+const Design = require('./Design');
+const Measurement = require('./Measurement');
 
 module.exports = {
   User,
@@ -10,4 +13,7 @@ module.exports = {
   PasswordReset,
   Workspace,
   WorkspaceInvite,
+  Client,
+  Design,
+  Measurement,
 };
