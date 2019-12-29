@@ -12,6 +12,10 @@ const ClientSchema = new mongoose.Schema(
       type: String,
       trim: true,
     },
+    imageURL: {
+      type: String,
+      trim: true,
+    },
     designs: [
       {
         type: mongoose.Schema.Types.ObjectId,
@@ -20,9 +24,18 @@ const ClientSchema = new mongoose.Schema(
     ],
     contacts: [
       {
-        type: Object,
+        type: {
+          type: String,
+        },
+        contact: {
+          type: String,
+        },
       },
     ],
+    workspace: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'workspace',
+    },
   },
   {
     timestamps: true,
