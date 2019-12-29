@@ -18,6 +18,12 @@ const WorkspaceSchema = new mongoose.Schema(
         ref: 'user',
       },
     ],
+    clients: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'client',
+      },
+    ],
     owner: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'user',
