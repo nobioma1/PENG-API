@@ -1,4 +1,3 @@
-/* eslint-disable no-underscore-dangle */
 const Crypto = require('crypto');
 
 const { Workspace, WorkspaceInvite, User } = require('../../models');

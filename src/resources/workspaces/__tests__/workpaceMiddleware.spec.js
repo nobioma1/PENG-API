@@ -1,4 +1,3 @@
-/* eslint-disable no-underscore-dangle */
 const supertest = require('supertest');
 
 const request = supertest(require('../../../api/server'));
