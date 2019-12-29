@@ -23,7 +23,7 @@ beforeEach(async done => {
   done();
 });
 
-describe('User/', () => {
+describe('User Controller', () => {
   describe('User Profile [GET] /api/v1/user', () => {
     it('should get authUser profile', async done => {
       const response = await request
