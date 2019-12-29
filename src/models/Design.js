@@ -1,6 +1,6 @@
 /* eslint-disable func-names */
 const mongoose = require('mongoose');
-const MeasurementSchema = require('./Measurement');
+const MeasurementSchema = require('./MeasurementSchema');
 
 const DesignSchema = new mongoose.Schema(
   {
