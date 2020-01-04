@@ -20,7 +20,7 @@
   "jest": {
     "testEnvironment": "node",
     "setupFilesAfterEnv": [
-      "./src/config/tests/setup.js"
+      "./src/tests/config/setup.js"
     ]
   },
   "husky": {
@@ -61,6 +61,7 @@
     "helmet": "^3.21.2",
     "jsonwebtoken": "^8.5.1",
     "mailgen": "^2.0.10",
-    "mongoose": "^5.7.13"
+    "mongoose": "^5.7.13",
+    "winston": "^3.2.1"
   }
 }

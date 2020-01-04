@@ -1,8 +1,8 @@
 const Cryptr = require('cryptr');
 
-const { CRYPT_SECRET } = require('../config');
+const { SECRET } = require('../config');
 
-const cryptr = new Cryptr(CRYPT_SECRET);
+const cryptr = new Cryptr(SECRET.CRYPT);
 
 module.exports = {
   encrypt: payload => cryptr.encrypt(payload),

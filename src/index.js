@@ -1,14 +1,18 @@
-/* eslint-disable no-console */
 const server = require('./api/server');
-const { connectDb } = require('./config/dbConnect');
+const mongooseLoader = require('./config/dbConnect');
 const { PORT } = require('./config');
+const Logger = require('./utils/logger');
 
-connectDb()
-  .then(connected => {
-    if (connected) {
-      server.listen(PORT, () => console.log(`Server Live @ Port ${PORT} 🚀`));
-    } else {
-      throw new Error('Error Starting Server');
+async function startServer() {
+  await mongooseLoader();
+  server.listen(PORT, err => {
+    if (err) {
+      Logger.error(err);
+      process.exit(1);
+      return;
     }
-  })
-  .catch(error => console.log(error));
+    Logger.info(`####🚀 Server listening on port: ${PORT} 🚀 ####`);
+  });
+}
+
+startServer();
