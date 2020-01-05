@@ -9,11 +9,10 @@ const MeasurementSchema = new mongoose.Schema(
     aroundArm: {
       type: Number,
     },
-
-    Sleeve: {
+    sleeve: {
       type: Number,
     },
-    Cuff: {
+    cuff: {
       type: Number,
     },
     Neck: {
