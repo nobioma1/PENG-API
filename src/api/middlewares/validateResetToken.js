@@ -1,20 +1,22 @@
 const { PasswordReset } = require('../../models');
 const { decrypt } = require('../../utils/encrypt-decrypt');
-const logger = require('../../utils/logger');
+const ErrorHandler = require('../../utils/ErrorHandler');
 
-function validateResetToken(req, res, next) {
+async function validateResetToken(req, res, next) {
   try {
     const token = decrypt(req.params.token);
-    PasswordReset.findOne({ token }, (err, userReset) => {
-      if (userReset) {
-        req.userReset = userReset;
-        return next();
-      }
-      throw new Error('Cannot Reset Password, Invalid or Expired Token');
-    });
+    const userReset = await PasswordReset.findOne({ token });
+    if (userReset) {
+      req.userReset = userReset;
+      return next();
+    }
+    throw new ErrorHandler('Cannot Reset Password, Invalid or Expired Token');
   } catch (error) {
-    logger.error(error);
-    next(error);
+    let err = error;
+    if (error.message === 'Invalid IV length') {
+      err = new ErrorHandler('Invalid Reset Token');
+    }
+    return next(err);
   }
 }
 

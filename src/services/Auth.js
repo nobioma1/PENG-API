@@ -1,11 +1,12 @@
+/* eslint-disable no-useless-catch */
 const Crypto = require('crypto');
 const bcrypt = require('bcryptjs');
 
-const logger = require('../utils/logger');
 const { User, VerifyToken, PasswordReset } = require('../models');
 const { generateToken } = require('../utils/authToken');
 const MailerService = require('./Mailer');
 const { encrypt } = require('../utils/encrypt-decrypt');
+const ErrorHandler = require('../utils/ErrorHandler');
 
 class AuthService {
   constructor() {
@@ -15,7 +16,6 @@ class AuthService {
     this.encrypt = encrypt;
     this.mailer = new MailerService();
     this.generateToken = generateToken;
-    this.logger = logger;
   }
 
   async signup(userInput) {
@@ -27,7 +27,7 @@ class AuthService {
       });
 
       if (!userRecord) {
-        throw new Error('User cannot be created');
+        throw new ErrorHandler('User cannot be created');
       }
 
       const vToken = Crypto.randomBytes(20).toString('hex');
@@ -45,23 +45,22 @@ class AuthService {
         user,
       };
     } catch (error) {
-      this.logger.error(error);
       throw error;
     }
   }
 
   async login(authUser, credentials) {
     try {
-      await this.userModel.findById(authUser._id, (err, userDoc) => {
-        const passwordIsValid = bcrypt.compareSync(
-          credentials.password,
-          userDoc.password,
-        );
+      const userDoc = await this.userModel.findById(authUser._id);
 
-        if (!passwordIsValid) {
-          throw new Error('Invalid Email or Password');
-        }
-      });
+      const passwordIsValid = bcrypt.compareSync(
+        credentials.password,
+        userDoc.password,
+      );
+
+      if (!passwordIsValid) {
+        throw new ErrorHandler('Invalid Email or Password');
+      }
 
       const token = generateToken({
         sub: authUser.id,
@@ -74,7 +73,6 @@ class AuthService {
         user,
       };
     } catch (error) {
-      this.logger.error(error);
       throw error;
     }
   }
@@ -92,7 +90,7 @@ class AuthService {
       );
 
       if (!resetRecord) {
-        throw new Error('Operation cannot be completed');
+        throw new ErrorHandler('Operation cannot be completed');
       }
 
       const resetToken = encrypt(resetRecord.token);
@@ -100,48 +98,42 @@ class AuthService {
 
       return { reset: resetRecord.toObject(), user };
     } catch (error) {
-      this.logger.error(error);
       throw error;
     }
   }
 
   async resetPassword(userReset, credentials) {
     try {
-      // Gets user with id in userReset doc
-      await this.userModel
-        .findById(userReset.userId)
-        .exec(async (userErr, user) => {
-          if (user) {
-            // compare if current and old passwords match
-            const passwordIsValid = bcrypt.compareSync(
-              credentials.oldPassword,
-              user.password,
-            );
-            if (passwordIsValid) {
-              const salt = bcrypt.genSaltSync(10);
-              const password = bcrypt.hashSync(credentials.newPassword, salt);
-              // Updates Password
-              await this.userModel.findByIdAndUpdate(
-                user.id,
-                { password },
-                async (err, userDoc) => {
-                  if (userDoc) {
-                    // Delete the userReset doc
-                    await this.passwordResetModel.findOneAndDelete({
-                      userId: userDoc.id,
-                    });
-                  }
-                },
-              );
-            } else {
-              throw new Error('Passwords does not match');
+      const user = await this.userModel.findOne(userReset.userId);
+
+      if (user) {
+        // compare if current and old passwords match
+        const passwordIsValid = bcrypt.compareSync(
+          credentials.oldPassword,
+          user.password,
+        );
+
+        if (!passwordIsValid) {
+          throw new ErrorHandler('Passwords does not match');
+        }
+
+        const salt = bcrypt.genSaltSync(10);
+        const password = bcrypt.hashSync(credentials.newPassword, salt);
+        // update the user password
+        await this.userModel
+          .findByIdAndUpdate(user._id, { password })
+          .exec(async (err, userDoc) => {
+            if (userDoc) {
+              // Delete the userReset doc
+              await this.passwordResetModel.findOneAndDelete({
+                userId: userDoc._id,
+              });
             }
-          } else {
-            throw new Error('User does not match');
-          }
-        });
+          });
+      } else {
+        throw new ErrorHandler('Cannot Reset Password, Invalid User', 404);
+      }
     } catch (error) {
-      this.logger.error(error);
       throw error;
     }
   }
@@ -163,7 +155,6 @@ class AuthService {
 
       return { ...user };
     } catch (error) {
-      this.logger.error(error);
       throw error;
     }
   }
@@ -185,7 +176,6 @@ class AuthService {
 
       return verifyRecord;
     } catch (error) {
-      this.logger.error(error);
       throw error;
     }
   }

@@ -1,20 +1,23 @@
 const { VerifyToken } = require('../../models');
 const { decrypt } = require('../../utils/encrypt-decrypt');
-const logger = require('../../utils/logger');
+const ErrorHandler = require('../../utils/ErrorHandler');
 
-function validateConfirmToken(req, res, next) {
+async function validateConfirmToken(req, res, next) {
   try {
     const token = decrypt(req.params.token);
-    VerifyToken.findOne({ token }, (err, userConfirm) => {
-      if (userConfirm) {
-        req.userConfirm = userConfirm;
-        return next();
-      }
-      throw new Error('Cannot Confirm user, Invalid or Expired Token');
-    });
+    const userConfirm = await VerifyToken.findOne({ token });
+    if (userConfirm) {
+      req.userConfirm = userConfirm;
+      return next();
+    }
+    throw new ErrorHandler('Cannot Confirm user, Invalid or Expired Token');
   } catch (error) {
-    logger.error(error);
-    next(error);
+    let err = error;
+    if (error.message === 'Invalid IV length') {
+      err = new ErrorHandler('Invalid Confirm Token');
+    }
+
+    return next(err);
   }
 }
 

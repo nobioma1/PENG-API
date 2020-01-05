@@ -1,5 +1,5 @@
 const { User } = require('../../models');
-const logger = require('../../utils/logger');
+const ErrorHandler = require('../../utils/ErrorHandler');
 
 async function userEmailExists(req, res, next) {
   try {
@@ -11,9 +11,8 @@ async function userEmailExists(req, res, next) {
       req.user = user.toJSON();
       return next();
     }
-    throw new Error('User with email does not exist');
+    throw new ErrorHandler('User with email does not exist');
   } catch (error) {
-    logger.error(error);
     return next(error);
   }
 }

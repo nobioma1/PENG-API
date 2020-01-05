@@ -1,5 +1,5 @@
 const { verifyToken } = require('../../utils/authToken');
-const logger = require('../../utils/logger');
+const ErrorHandler = require('../../utils/ErrorHandler');
 
 function validateAuthToken(req, res, next) {
   try {
@@ -10,9 +10,8 @@ function validateAuthToken(req, res, next) {
       return next();
     }
 
-    throw new Error('Provide a valid authorization token');
+    throw new ErrorHandler('Provide a valid authorization token', 401);
   } catch (error) {
-    logger.error(error);
     return next(error);
   }
 }
