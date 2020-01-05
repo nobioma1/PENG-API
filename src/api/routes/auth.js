@@ -18,12 +18,12 @@ authRoute.post(
     try {
       const AuthServiceInstance = new AuthService();
       const { token, user } = await AuthServiceInstance.signup(req.body);
-      return res.status(201).json({
+      res.status(201).json({
         token,
         user,
       });
     } catch (error) {
-      return next(error);
+      next(error);
     }
   },
 );
@@ -39,12 +39,12 @@ authRoute.post(
         req.user,
         req.body,
       );
-      return res.status(200).json({
+      res.status(200).json({
         token,
         user,
       });
     } catch (error) {
-      return next(error);
+      next(error);
     }
   },
 );
@@ -58,11 +58,11 @@ authRoute.post(
       const AuthServiceInstance = new AuthService();
       const { user } = await AuthServiceInstance.forgotPassword(req.user);
 
-      return res.status(200).json({
+      res.status(200).json({
         message: `Password reset email sent to '${user.email}' 📨.`,
       });
     } catch (error) {
-      return next(error);
+      next(error);
     }
   },
 );
@@ -75,9 +75,9 @@ authRoute.post(
     try {
       const AuthServiceInstance = new AuthService();
       await AuthServiceInstance.resetPassword(req.userReset, req.body);
-      return res.status(200).json({ message: 'Password Updated' });
+      res.status(200).json({ message: 'Password Updated' });
     } catch (error) {
-      return next(error);
+      next(error);
     }
   },
 );
@@ -91,11 +91,11 @@ authRoute.get('/confirm_user/:token', validateConfirmToken, async function(
     const AuthServiceInstance = new AuthService();
     const user = await AuthServiceInstance.confirmUser(req.userConfirm);
 
-    return res
+    res
       .status(200)
       .json({ message: `User with email '${user.email} confirmed` });
   } catch (error) {
-    return next(error);
+    next(error);
   }
 });
 
@@ -107,11 +107,11 @@ authRoute.get(
     try {
       const AuthServiceInstance = new AuthService();
       await AuthServiceInstance.reConfirm(req.user);
-      return res
+      res
         .status(200)
         .json({ message: `Verification token resent to ${req.user.email}` });
     } catch (error) {
-      return next(error);
+      next(error);
     }
   },
 );
