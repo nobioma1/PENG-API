@@ -1,21 +1,20 @@
 const { User } = require('../../models');
-const logger = require('../../utils/logger');
+const ErrorHandler = require('../../utils/ErrorHandler');
 
-async function userEmailExists(req, res, next) {
+async function userExists(req, res, next) {
+  const parameter = req.params.userID || req.authUser.sub;
+
   try {
-    const user = await User.findOne({
-      _id: req.params.userID || req.authUser.sub,
-    }).populate('workspace');
+    const user = await User.findById(parameter).populate('workspace');
 
     if (user) {
-      req.user = user;
+      req.user = user.toJSON();
       return next();
     }
-    throw new Error('User does not exist');
+    throw new ErrorHandler('User does not exist', 404);
   } catch (error) {
-    logger.error(error);
     return next(error);
   }
 }
 
-module.exports = userEmailExists;
+module.exports = userExists;

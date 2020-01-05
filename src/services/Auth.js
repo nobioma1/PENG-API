@@ -22,7 +22,7 @@ class AuthService {
     try {
       const userRecord = await this.userModel.create(userInput);
       const token = this.generateToken({
-        sub: userRecord.id,
+        sub: userRecord._id,
         email: userRecord.email,
       });
 
@@ -63,7 +63,7 @@ class AuthService {
       }
 
       const token = generateToken({
-        sub: authUser.id,
+        sub: authUser._id,
         email: authUser.email,
       });
 

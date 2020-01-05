@@ -27,7 +27,7 @@ beforeEach(async done => {
 describe('User Controller', () => {
   describe('User Profile [GET] /api/v1/user', () => {
     it('should check if user exists', async done => {
-      const response = await request.get('/api/v1/user').set(
+      const response = await request.get('/api/v1/user/profile').set(
         'Authorization',
         generateToken({
           sub: '5e07d074f48ad66309eac273',
@@ -35,15 +35,16 @@ describe('User Controller', () => {
         }),
       );
       expect(response.status).toBe(404);
-      expect(response.body).toEqual({ error: 'User does not exist' });
+      expect(response.body.error).toEqual({ message: 'User does not exist' });
       done();
     });
 
     it('should get authUser profile', async done => {
       const response = await request
-        .get('/api/v1/user')
+        .get('/api/v1/user/profile')
         .set('Authorization', authUser.token);
       expect(response.status).toBe(200);
+      expect(response.body.user.name).toEqual(authUser.user.name);
       done();
     });
   });
