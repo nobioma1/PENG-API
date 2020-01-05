@@ -71,9 +71,7 @@ describe('Client Controller', () => {
       .set('Authorization', authUser.token);
     expect.assertions(2);
     expect(response.status).toBe(400);
-    expect(response.body.error).toEqual(
-      expect.arrayContaining(['Name is required']),
-    );
+    expect(response.body.error).toEqual({ message: ['Name is required'] });
     done();
   });
 
@@ -93,8 +91,8 @@ describe('Client Controller', () => {
       .set('Authorization', authUser.token);
     expect.assertions(2);
     expect(response.status).toBe(400);
-    expect(response.body).toEqual({
-      error: 'Client with Name already exists',
+    expect(response.body.error).toEqual({
+      message: 'Client with Name already exists',
     });
     done();
   });

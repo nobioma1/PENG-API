@@ -1,21 +1,19 @@
 const { Client } = require('../../models');
-const logger = require('../../utils/logger');
+const ErrorHandler = require('../../utils/ErrorHandler');
 
-function emailDoesNotExists(req, res, next) {
+async function clientDoesNotExists(req, res, next) {
   try {
-    Client.findOne({
+    const client = await Client.findOne({
       name: req.body.name,
       workspace: req.workspace._id,
-    }).exec((err, client) => {
-      if (!client) {
-        return next();
-      }
-      throw new Error('Client with Name already exists');
     });
+    if (!client) {
+      return next();
+    }
+    throw new ErrorHandler('Client with Name already exists');
   } catch (error) {
-    logger.error(error);
-    next(error);
+    return next(error);
   }
 }
 
-module.exports = emailDoesNotExists;
+module.exports = clientDoesNotExists;
