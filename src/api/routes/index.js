@@ -7,6 +7,7 @@ const client = require('./client');
 const design = require('./design');
 const validateAuthToken = require('../middlewares/validateAuthToken');
 const workspaceExists = require('../middlewares/workspaceExists');
+const checkMembership = require('../middlewares/checkMembership');
 
 routes.use('/auth', auth);
 routes.use('/user', validateAuthToken, user);
@@ -18,9 +19,10 @@ routes.use(
   client,
 );
 routes.use(
-  '/workspace/:workspaceID/client/:clientID/design',
+  '/workspace/:workspaceID/design',
   validateAuthToken,
   workspaceExists,
+  checkMembership,
   design,
 );
 

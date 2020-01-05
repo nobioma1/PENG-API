@@ -1,24 +1,26 @@
 const { User } = require('../../models');
-const logger = require('../../utils/logger');
+const ErrorHandler = require('../../utils/ErrorHandler');
 
-function checkWorkspaceOwner(req, res, next) {
+async function checkWorkspaceOwner(req, res, next) {
   try {
     const { authUser, workspace } = req;
-    User.findById(authUser.sub, (err, user) => {
-      /* 
-      Cast to string because 'workspace.owner' and 
-      'user.id' is a typeof 'Object' and returns 
-      false when compared if not cast to String 
-      */
-      if (user && String(workspace.owner) === String(user.id)) {
-        return next();
-      }
+    const owner = await User.findOne({
+      _id: authUser.sub,
+      workspaces: {
+        $in: [workspace._id],
+      },
+    }).lean();
 
-      throw new Error('You are not authorized to perform this operation');
-    });
+    if (owner) {
+      return next();
+    }
+
+    throw new ErrorHandler(
+      'You are not authorized to perform this operation',
+      401,
+    );
   } catch (error) {
-    logger.error(error);
-    next(error);
+    return next(error);
   }
 }
 

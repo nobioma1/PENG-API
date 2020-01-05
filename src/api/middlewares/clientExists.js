@@ -1,21 +1,21 @@
 const { Client } = require('../../models');
-const logger = require('../../utils/logger');
+const EventHandler = require('../../utils/ErrorHandler');
 
-function clientExists(req, res, next) {
+async function clientExists(req, res, next) {
   try {
-    Client.findOne({
-      _id: req.params.clientID,
+    const { client } = req.body;
+    const workspaceClient = await Client.findOne({
+      _id: client,
       workspace: req.workspace._id,
-    }).exec((err, workspaceClient) => {
-      if (workspaceClient) {
-        req.workspaceClient = workspaceClient;
-        return next();
-      }
-      throw new Error('Client not in workspace');
     });
+
+    if (workspaceClient) {
+      req.workspaceClient = workspaceClient;
+      return next();
+    }
+    throw new EventHandler('Client not in workspace', 404);
   } catch (error) {
-    logger.error(error);
-    next(error);
+    return next(error);
   }
 }
 

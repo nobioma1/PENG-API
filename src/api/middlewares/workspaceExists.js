@@ -1,18 +1,16 @@
 const { Workspace } = require('../../models');
-const logger = require('../../utils/logger');
+const ErrorHandler = require('../../utils/ErrorHandler');
 
-function workspaceExists(req, res, next) {
+async function workspaceExists(req, res, next) {
   try {
-    Workspace.findById(req.params.workspaceID, (err, workspace) => {
-      if (workspace) {
-        req.workspace = workspace;
-        return next();
-      }
-      throw new Error('Workspace not found');
-    });
+    const workspace = await Workspace.findById(req.params.workspaceID);
+    if (workspace) {
+      req.workspace = workspace;
+      return next();
+    }
+    throw new ErrorHandler('Workspace not found', 404);
   } catch (error) {
-    logger.error(error);
-    next(error);
+    return next(error);
   }
 }
 

@@ -1,24 +1,22 @@
 const { Workspace } = require('../../models');
-const logger = require('../../utils/logger');
+const ErrorHandler = require('../../utils/ErrorHandler');
 
-function checkMembership(req, res, next) {
+async function checkMembership(req, res, next) {
   try {
     const target = req.params.userID ? req.params.userID : req.authUser.sub;
 
-    Workspace.findOne({
+    const member = await Workspace.findOne({
       _id: req.params.workspaceID,
       members: {
         $in: [target],
       },
-    }).exec((err, member) => {
-      if (member) {
-        return next();
-      }
-      throw new Error('User is not a member of Workspace');
     });
+    if (member) {
+      return next();
+    }
+    throw new ErrorHandler('User is not a member of Workspace', 404);
   } catch (error) {
-    logger.error(error);
-    next(error);
+    return next(error);
   }
 }
 

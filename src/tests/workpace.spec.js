@@ -15,7 +15,10 @@ const testUser = {
 };
 
 let authUser;
-let testWorkspace;
+const testWorkspace = {
+  name: 'Test Workspace',
+  logoURL: 'https://linktoimage.com/workspace.jpg',
+};
 
 beforeEach(async done => {
   await User.create(testUser);
@@ -24,12 +27,6 @@ beforeEach(async done => {
     password: testUser.password,
   });
   authUser = body;
-  testWorkspace = {
-    name: 'Test Workspace',
-    owner: body.user._id,
-    members: [],
-    logoURL: 'https://linktoimage.com/workspace.jpg',
-  };
   done();
 });
 
@@ -42,40 +39,41 @@ describe('Workspace Controller', () => {
         .set('Authorization', authUser.token);
       expect.assertions(2);
       expect(response.status).toBe(400);
-      expect(response.body.error).toEqual(
-        expect.arrayContaining(['Name is required']),
-      );
+      expect(response.body.error).toEqual({ message: ['Name is required'] });
       done();
     });
 
     it('should create workspace', async done => {
       const response = await request
         .post('/api/v1/workspace')
-        .send({ name: testWorkspace.name })
+        .send(testWorkspace)
         .set('Authorization', authUser.token);
       expect.assertions(3);
       expect(response.status).toBe(201);
       expect(response.body.workspace.name).toEqual(testWorkspace.name);
-      expect(response.body.workspace.owner).toEqual(testWorkspace.owner);
+      expect(response.body.workspace.owner).toEqual(authUser.user._id);
       done();
     });
   });
 
   describe('GET Workspace [GET] /api/v1/workspace/:workspaceID', () => {
-    it('should check if workspace eits', async done => {
+    it('should check if workspace exists', async done => {
       const response = await request
         .get('/api/v1/workspace/5e06901ddc46bc5c88786d1d')
         .set('Authorization', authUser.token);
       expect.assertions(2);
       expect(response.status).toBe(404);
-      expect(response.body).toEqual({
-        error: 'Workspace not found',
+      expect(response.body.error).toEqual({
+        message: 'Workspace not found',
       });
       done();
     });
 
     it('should get workspace with id', async done => {
-      const workspace = await Workspace.create(testWorkspace);
+      const workspace = await Workspace.create({
+        ...testWorkspace,
+        owner: authUser.user._id,
+      });
       const response = await request
         .get(`/api/v1/workspace/${workspace._id}`)
         .set('Authorization', authUser.token);
@@ -88,7 +86,11 @@ describe('Workspace Controller', () => {
 
   describe('Update Workspace [PUT] /api/v1/workspace/workspaceID', () => {
     it('should check if workspace owner', async done => {
-      const workspace = await Workspace.create(testWorkspace);
+      const workspace = await Workspace.create({
+        ...testWorkspace,
+        owner: authUser.user._id,
+        members: [authUser.user._id],
+      });
       const fakeToken = generateToken({
         sub: '5e06901ddc46bc5c88786d1d',
         email: 'notowner@email.com',
@@ -99,20 +101,30 @@ describe('Workspace Controller', () => {
         .send(testWorkspace);
       expect.assertions(2);
       expect(response.status).toBe(401);
-      expect(response.body).toEqual({
-        error: 'You are not authorized to perform this operation',
+      expect(response.body.error).toEqual({
+        message: 'You are not authorized to perform this operation',
       });
       done();
     });
 
     it('should update workspace', async done => {
-      const workspace = await Workspace.create(testWorkspace);
+      const workspace = await Workspace.create({
+        ...testWorkspace,
+        owner: authUser.user._id,
+        members: [authUser.user._id],
+      });
+      await User.findByIdAndUpdate(authUser.user._id, {
+        $push: {
+          workspaces: workspace._id,
+        },
+      });
       const response = await request
         .put(`/api/v1/workspace/${workspace._id}`)
         .set('Authorization', authUser.token)
         .send({
           name: 'Updated Test Name',
         });
+
       expect.assertions(2);
       expect(response.status).toBe(200);
       expect(response.body.workspace.name).toEqual('Updated Test Name');
@@ -123,38 +135,70 @@ describe('Workspace Controller', () => {
   describe('Delete Workspace [DELETE] /api/v1/workspace/workspaceID', () => {
     it('should delete workspace', async done => {
       await Workspace.create({
-        ...testWorkspace,
         name: 'Kip Workspace',
+        owner: '5e06901ddc46bc5c88786d1d',
+        members: ['5e06901ddc46bc5c88786d1d'],
       });
-      const workspace = await Workspace.create(testWorkspace);
+      const workspace = await Workspace.create({
+        ...testWorkspace,
+        owner: authUser.user._id,
+        members: [authUser.user._id],
+      });
+      await User.findByIdAndUpdate(authUser.user._id, {
+        $push: {
+          workspaces: workspace._id,
+        },
+      });
       const response = await request
         .delete(`/api/v1/workspace/${workspace._id}`)
         .set('Authorization', authUser.token);
-      expect.assertions(2);
+      const workspaces = await Workspace.find().lean();
+      expect.assertions(4);
       expect(response.status).toBe(204);
       expect(response.body).toEqual({});
+      expect(workspaces.length).toBe(1);
+      expect(workspaces[0].name).toBe('Kip Workspace');
       done();
     });
   });
 
   describe('Send Invite to Workspace [POST] /api/v1/workspace/:workspaceID/invite', () => {
     it('should validate request body', async done => {
-      const workspace = await Workspace.create(testWorkspace);
+      const workspace = await Workspace.create({
+        ...testWorkspace,
+        owner: authUser.user._id,
+        members: [authUser.user._id],
+      });
+      await User.findByIdAndUpdate(authUser.user._id, {
+        $push: {
+          workspaces: workspace._id,
+        },
+      });
       const response = await request
         .post(`/api/v1/workspace/${workspace._id}/invite`)
         .send({})
         .set('Authorization', authUser.token);
       expect.assertions(2);
       expect(response.status).toBe(400);
-      expect(response.body.error).toEqual(
-        expect.arrayContaining(['Email Address is required']),
-      );
+      expect(response.body.error).toEqual({
+        message: ['Email Address is required'],
+      });
       done();
     });
 
     it('should invite user to workspace', async done => {
       const email = 'inviteuser@email.com';
-      const workspace = await Workspace.create(testWorkspace);
+      const workspace = await Workspace.create({
+        ...testWorkspace,
+        owner: authUser.user._id,
+        members: [authUser.user._id],
+      });
+      await User.findByIdAndUpdate(authUser.user._id, {
+        $push: {
+          workspaces: workspace._id,
+        },
+      });
+
       const response = await request
         .post(`/api/v1/workspace/${workspace._id}/invite`)
         .send({ email })
@@ -185,7 +229,11 @@ describe('Workspace Controller', () => {
         password: 'memberrpassword',
       });
       const iToken = Crypto.randomBytes(20).toString('hex');
-      const workspace = await Workspace.create(testWorkspace);
+      const workspace = await Workspace.create({
+        ...testWorkspace,
+        owner: authUser.user._id,
+        members: [authUser.user._id],
+      });
       await WorkspaceInvite.create({
         email: user.email,
         workspace: workspace._id,
@@ -197,15 +245,45 @@ describe('Workspace Controller', () => {
         .set('Authorization', userLogin.body.token);
       const joinedUser = await User.findById(user._id).lean();
       const joinedWorkspace = await Workspace.findById(workspace._id).lean();
-      expect.assertions(6);
+
+      expect.assertions(5);
       expect(response.status).toBe(200);
       expect(response.body).toEqual({
-        message: `User "${user.name}" has been added to ${workspace.name}`,
+        message: `User "${user.name}" has been added to "${workspace.name}"`,
       });
       expect(joinedUser.workspaces).toHaveLength(1);
-      expect(joinedWorkspace.members).toHaveLength(1);
+      expect(joinedWorkspace.members).toHaveLength(2);
       expect(joinedUser.workspaces[0]).toEqual(workspace._id);
-      expect(joinedWorkspace.members[0]).toEqual(user._id);
+      done();
+    });
+
+    it('should catch error with invite token', async done => {
+      const user = await User.create({
+        name: 'Workspace Member',
+        email: 'workspacemember@email.com',
+        password: 'memberrpassword',
+        imageURL: '',
+        isActive: true,
+      });
+      const userLogin = await request.post('/api/v1/auth/login').send({
+        email: user.email,
+        password: 'memberrpassword',
+      });
+      const token = 'Bad Invite Token';
+      const workspace = await Workspace.create({
+        ...testWorkspace,
+        owner: authUser.user._id,
+        members: [authUser.user._id],
+      });
+      const response = await request
+        .get(`/api/v1/workspace/${workspace._id}/join/${token}`)
+        .set('Authorization', userLogin.body.token);
+
+      expect.assertions(2);
+      expect(response.status).toBe(400);
+      expect(response.body.error).toEqual({
+        message: 'Invalid Invitation Token',
+      });
       done();
     });
   });
@@ -219,14 +297,23 @@ describe('Workspace Controller', () => {
         imageURL: '',
         isActive: true,
       });
-      const workspace = await Workspace.create(testWorkspace);
+      const workspace = await Workspace.create({
+        ...testWorkspace,
+        owner: authUser.user._id,
+        members: [authUser.user._id],
+      });
+      await User.findByIdAndUpdate(authUser.user._id, {
+        $push: {
+          workspaces: workspace._id,
+        },
+      });
       const response = await request
         .delete(`/api/v1/workspace/${workspace._id}/remove/${user._id}`)
         .set('Authorization', authUser.token);
       expect.assertions(2);
       expect(response.status).toBe(404);
-      expect(response.body).toEqual({
-        error: 'User is not a member of Workspace',
+      expect(response.body.error).toEqual({
+        message: 'User is not a member of Workspace',
       });
       done();
     });
@@ -239,7 +326,16 @@ describe('Workspace Controller', () => {
         imageURL: '',
         isActive: true,
       });
-      const workspace = await Workspace.create(testWorkspace);
+      const workspace = await Workspace.create({
+        ...testWorkspace,
+        owner: authUser.user._id,
+        members: [authUser.user._id],
+      });
+      await User.findByIdAndUpdate(authUser.user._id, {
+        $push: {
+          workspaces: workspace._id,
+        },
+      });
       await Workspace.findByIdAndUpdate(workspace._id, {
         $push: {
           members: user._id,
@@ -256,7 +352,7 @@ describe('Workspace Controller', () => {
       expect.assertions(2);
       expect(response.status).toBe(200);
       expect(response.body).toEqual({
-        message: `User "${user.name}" has been removed from ${workspace.name}`,
+        message: `User "${user.name}" has been removed from "${workspace.name}"`,
       });
       done();
     });
@@ -271,7 +367,16 @@ describe('Workspace Controller', () => {
         imageURL: '',
         isActive: true,
       });
-      const workspace = await Workspace.create(testWorkspace);
+      const workspace = await Workspace.create({
+        ...testWorkspace,
+        owner: authUser.user._id,
+        members: [authUser.user._id],
+      });
+      await User.findByIdAndUpdate(authUser.user._id, {
+        $push: {
+          workspaces: workspace._id,
+        },
+      });
       await Workspace.findByIdAndUpdate(workspace._id, {
         $push: {
           members: user._id,

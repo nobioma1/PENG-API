@@ -11,7 +11,7 @@ const DesignSchema = new mongoose.Schema(
     },
     designType: {
       type: String,
-      enum: ['MALE', 'FEMALE', 'UNISEX'],
+      enum: ['male', 'female', 'unisex'],
     },
     color: {
       type: String,
@@ -29,6 +29,10 @@ const DesignSchema = new mongoose.Schema(
     measurement: MeasurementSchema,
     notes: {
       type: String,
+    },
+    workspace: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'workspace',
     },
   },
   {

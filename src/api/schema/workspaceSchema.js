@@ -5,7 +5,7 @@ exports.workspaceSchema = Joi.object({
     .label('Name')
     .min(4)
     .required(),
-  imageURL: Joi.string().label('Image URL'),
+  logoURL: Joi.string().label('Image URL'),
 });
 
 exports.inviteSchema = Joi.object({

@@ -1,23 +1,25 @@
 const { WorkspaceInvite } = require('../../models');
-const logger = require('../../utils/logger');
+const ErrorHandler = require('../../utils/ErrorHandler');
 const { decrypt } = require('../../utils/encrypt-decrypt');
 
-function checkWorkspaceInvite(req, res, next) {
+async function checkWorkspaceInvite(req, res, next) {
   try {
     const token = decrypt(req.params.token);
-    WorkspaceInvite.findOne(
-      { token, workspace: req.params.workspaceID },
-      (err, userInvite) => {
-        if (userInvite) {
-          req.userInvite = userInvite;
-          return next();
-        }
-        throw new Error('Invalid Invitation Token');
-      },
-    );
+    const userInvite = await WorkspaceInvite.findOne({
+      token,
+      workspace: req.params.workspaceID,
+    });
+    if (userInvite) {
+      req.userInvite = userInvite;
+      return next();
+    }
+    throw new ErrorHandler('Invalid Invitation Token');
   } catch (error) {
-    logger.error(error);
-    next(error);
+    let err = error;
+    if (error.message === 'Invalid IV length') {
+      err = new ErrorHandler('Invalid Invitation Token');
+    }
+    return next(err);
   }
 }
 
