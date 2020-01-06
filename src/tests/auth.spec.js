@@ -14,7 +14,6 @@ const testUser = {
 };
 
 const testUserReset = {
-  oldPassword: 'TestPassword',
   newPassword: 'SomethingTestPassword',
   confirmNewPassword: 'SomethingTestPassword',
 };
@@ -231,11 +230,7 @@ describe('Auth Controller', () => {
       expect.assertions(2);
       expect(response.status).toBe(400);
       expect(response.body.error).toEqual({
-        message: [
-          'Old Password is required',
-          'New Password is required',
-          'confirmNewPassword is required',
-        ],
+        message: ['New Password is required', 'confirmNewPassword is required'],
       });
       done();
     });
@@ -262,27 +257,6 @@ describe('Auth Controller', () => {
       expect(response.status).toBe(400);
       expect(response.body.error).toEqual({
         message: 'Cannot Reset Password, Invalid or Expired Token',
-      });
-      done();
-    });
-
-    it('should confirm if old password match', async done => {
-      await request.post('/api/v1/auth/signup').send(testUser);
-      await request
-        .post(`/api/v1/auth/forgot_password`)
-        .send({ email: testUser.email });
-      const [reset] = await PasswordReset.find().lean();
-      const token = encrypt(reset.token);
-      const response = await request
-        .post(`/api/v1/auth/reset_password/${token}`)
-        .send({
-          ...testUserReset,
-          oldPassword: 'NotAMatchToOldPassword',
-        });
-      expect.assertions(2);
-      expect(response.status).toBe(400);
-      expect(response.body.error).toEqual({
-        message: 'Passwords does not match',
       });
       done();
     });

@@ -38,10 +38,6 @@ exports.forgotPwdSchema = Joi.object({
 });
 
 exports.resetPwdSchema = Joi.object({
-  oldPassword: Joi.string()
-    .label('Old Password')
-    .pattern(/^[a-zA-Z0-9]{3,30}$/)
-    .required(),
   newPassword: Joi.string()
     .label('New Password')
     .pattern(/^[a-zA-Z0-9]{3,30}$/)

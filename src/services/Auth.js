@@ -107,16 +107,6 @@ class AuthService {
       const user = await this.userModel.findOne(userReset.userId);
 
       if (user) {
-        // compare if current and old passwords match
-        const passwordIsValid = bcrypt.compareSync(
-          credentials.oldPassword,
-          user.password,
-        );
-
-        if (!passwordIsValid) {
-          throw new ErrorHandler('Passwords does not match');
-        }
-
         const salt = bcrypt.genSaltSync(10);
         const password = bcrypt.hashSync(credentials.newPassword, salt);
         // update the user password
