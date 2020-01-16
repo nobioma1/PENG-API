@@ -1,10 +1,10 @@
 /* eslint-disable func-names */
 const mongoose = require('mongoose');
 
-const VerifySchema = new mongoose.Schema({
+const verifySchema = new mongoose.Schema({
   userId: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'user',
+    ref: 'User',
     required: true,
   },
   token: {
@@ -18,4 +18,4 @@ const VerifySchema = new mongoose.Schema({
   },
 });
 
-module.exports = mongoose.model('verify', VerifySchema);
+module.exports = mongoose.model('Verify', verifySchema);

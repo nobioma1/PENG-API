@@ -1,7 +1,7 @@
 /* eslint-disable func-names */
 const mongoose = require('mongoose');
 
-const PasswordResetSchema = new mongoose.Schema({
+const passwordResetSchema = new mongoose.Schema({
   userId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'user',
@@ -18,4 +18,4 @@ const PasswordResetSchema = new mongoose.Schema({
   },
 });
 
-module.exports = mongoose.model('passwordReset', PasswordResetSchema);
+module.exports = mongoose.model('PasswordReset', passwordResetSchema);

@@ -2,7 +2,7 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 
-const UserSchema = new mongoose.Schema(
+const userSchema = new mongoose.Schema(
   {
     name: {
       type: String,
@@ -31,7 +31,7 @@ const UserSchema = new mongoose.Schema(
     workspaces: [
       {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'workspace',
+        ref: 'Workspace',
       },
     ],
   },
@@ -40,16 +40,16 @@ const UserSchema = new mongoose.Schema(
   },
 );
 
-UserSchema.pre('save', function(next) {
+userSchema.pre('save', function(next) {
   const salt = bcrypt.genSaltSync(10);
   this.password = bcrypt.hashSync(this.password, salt);
   next();
 });
 
-UserSchema.methods.toJSON = function() {
+userSchema.methods.toJSON = function() {
   const obj = this.toObject();
   delete obj.password;
   return obj;
 };
 
-module.exports = mongoose.model('user', UserSchema);
+module.exports = mongoose.model('User', userSchema);

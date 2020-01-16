@@ -1,7 +1,7 @@
 /* eslint-disable func-names */
 const mongoose = require('mongoose');
 
-const WorkspaceSchema = new mongoose.Schema(
+const workspaceSchema = new mongoose.Schema(
   {
     name: {
       type: String,
@@ -15,18 +15,18 @@ const WorkspaceSchema = new mongoose.Schema(
     members: [
       {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'user',
+        ref: 'User',
       },
     ],
     clients: [
       {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'client',
+        ref: 'Client',
       },
     ],
     owner: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'user',
+      ref: 'User',
       required: true,
     },
   },
@@ -35,4 +35,4 @@ const WorkspaceSchema = new mongoose.Schema(
   },
 );
 
-module.exports = mongoose.model('workspace', WorkspaceSchema);
+module.exports = mongoose.model('Workspace', workspaceSchema);
