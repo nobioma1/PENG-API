@@ -5,7 +5,10 @@ async function userExists(req, res, next) {
   const parameter = req.params.userID || req.authUser.sub;
 
   try {
-    const user = await User.findById(parameter).populate('workspace');
+    const user = await User.findById(parameter).populate({
+      path: 'workspaces',
+      select: ['name', 'logoURL'],
+    });
 
     if (user) {
       req.user = user.toJSON();
