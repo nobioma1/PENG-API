@@ -1,7 +1,7 @@
 /* eslint-disable func-names */
 const mongoose = require('mongoose');
 
-const ClientSchema = new mongoose.Schema(
+const clientSchema = new mongoose.Schema(
   {
     name: {
       type: String,
@@ -19,7 +19,7 @@ const ClientSchema = new mongoose.Schema(
     designs: [
       {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'design',
+        ref: 'Design',
       },
     ],
     contacts: [
@@ -34,7 +34,7 @@ const ClientSchema = new mongoose.Schema(
     ],
     workspace: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'workspace',
+      ref: 'Workspace',
     },
   },
   {
@@ -42,4 +42,4 @@ const ClientSchema = new mongoose.Schema(
   },
 );
 
-module.exports = mongoose.model('client', ClientSchema);
+module.exports = mongoose.model('Client', clientSchema);

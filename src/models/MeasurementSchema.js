@@ -1,7 +1,7 @@
 /* eslint-disable func-names */
 const mongoose = require('mongoose');
 
-const MeasurementSchema = new mongoose.Schema(
+const measurementSchema = new mongoose.Schema(
   {
     shoulder: {
       type: Number,
@@ -63,4 +63,4 @@ const MeasurementSchema = new mongoose.Schema(
   },
 );
 
-module.exports = MeasurementSchema;
+module.exports = measurementSchema;

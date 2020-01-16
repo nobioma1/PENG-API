@@ -1,8 +1,8 @@
 /* eslint-disable func-names */
 const mongoose = require('mongoose');
-const MeasurementSchema = require('./MeasurementSchema');
+const measurementSchema = require('./measurementSchema');
 
-const DesignSchema = new mongoose.Schema(
+const designSchema = new mongoose.Schema(
   {
     name: {
       type: String,
@@ -24,15 +24,15 @@ const DesignSchema = new mongoose.Schema(
     ],
     client: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'client',
+      ref: 'Client',
     },
-    measurement: MeasurementSchema,
+    measurement: measurementSchema,
     notes: {
       type: String,
     },
     workspace: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'workspace',
+      ref: 'Workspace',
     },
   },
   {
@@ -40,4 +40,4 @@ const DesignSchema = new mongoose.Schema(
   },
 );
 
-module.exports = mongoose.model('design', DesignSchema);
+module.exports = mongoose.model('Design', designSchema);

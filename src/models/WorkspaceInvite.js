@@ -1,7 +1,7 @@
 /* eslint-disable func-names */
 const mongoose = require('mongoose');
 
-const WorkspaceInviteSchema = new mongoose.Schema(
+const workspaceInviteSchema = new mongoose.Schema(
   {
     email: {
       type: String,
@@ -16,7 +16,7 @@ const WorkspaceInviteSchema = new mongoose.Schema(
     workspace: {
       type: mongoose.Schema.Types.ObjectId,
       required: true,
-      ref: 'workspace',
+      ref: 'Workspace',
     },
   },
   {
@@ -24,4 +24,4 @@ const WorkspaceInviteSchema = new mongoose.Schema(
   },
 );
 
-module.exports = mongoose.model('workspaceInvite', WorkspaceInviteSchema);
+module.exports = mongoose.model('WorkspaceInvite', workspaceInviteSchema);
