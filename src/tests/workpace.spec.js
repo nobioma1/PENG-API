@@ -48,10 +48,19 @@ describe('Workspace Controller', () => {
         .post('/api/v1/workspace')
         .send(testWorkspace)
         .set('Authorization', authUser.token);
-      expect.assertions(3);
+
+      const userWorkspace = await User.findOne({
+        _id: authUser.user._id,
+        workspaces: {
+          $in: [response.body.workspace._id],
+        },
+      });
+
+      expect.assertions(4);
       expect(response.status).toBe(201);
       expect(response.body.workspace.name).toEqual(testWorkspace.name);
       expect(response.body.workspace.owner).toEqual(authUser.user._id);
+      expect(userWorkspace).not.toBeNull();
       done();
     });
   });

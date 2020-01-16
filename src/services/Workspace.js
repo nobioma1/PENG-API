@@ -27,6 +27,12 @@ class WorkspaceService {
         throw new ErrorHandler('Workspace cannot be created');
       }
 
+      await this.userModel.findByIdAndUpdate(owner, {
+        $push: {
+          workspaces: workspaceRecord._id,
+        },
+      });
+
       const workspace = workspaceRecord.toObject();
       return workspace;
     } catch (error) {
