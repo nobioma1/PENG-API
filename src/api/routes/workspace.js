@@ -7,6 +7,8 @@ const workspaceExists = require('../middlewares/workspaceExists');
 const checkWorkspaceOwner = require('../middlewares/checkWorkspaceOwner');
 const checkWorkspaceInvite = require('../middlewares/checkWorkspaceInvite');
 const checkMembership = require('../middlewares/checkMembership');
+const checkInvite = require('../middlewares/checkInvite');
+const checkAlreadyMember = require('../middlewares/checkAlreadyMember');
 
 workspaceRoute.post('/', validate(workspaceSchema), async function(
   req,
@@ -87,6 +89,8 @@ workspaceRoute.post(
   workspaceExists,
   checkWorkspaceOwner,
   validate(inviteSchema),
+  checkInvite,
+  checkAlreadyMember,
   async function(req, res, next) {
     try {
       const WorkspaceServiceInstance = new WorkspaceService();
