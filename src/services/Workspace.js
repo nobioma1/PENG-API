@@ -40,6 +40,20 @@ class WorkspaceService {
     }
   }
 
+  async getUserWorkspaces(userId) {
+    try {
+      const workspaces = await this.workspaceModel
+        .find({
+          owner: userId,
+        })
+        .lean();
+
+      return workspaces;
+    } catch (error) {
+      throw error;
+    }
+  }
+
   async updateWorkspace(updateInput, workspace) {
     try {
       const updatedWorkspace = await this.workspaceModel
