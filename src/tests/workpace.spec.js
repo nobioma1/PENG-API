@@ -93,6 +93,26 @@ describe('Workspace Controller', () => {
     });
   });
 
+  describe('GET User Workspaces [GET] /api/v1/workspace/', () => {
+    it('should get user workspaces', async done => {
+      await Workspace.create({
+        ...testWorkspace,
+        owner: authUser.user._id,
+      });
+      await Workspace.create({
+        ...testWorkspace,
+        owner: authUser.user._id,
+      });
+      const response = await request
+        .get(`/api/v1/workspace`)
+        .set('Authorization', authUser.token);
+      expect.assertions(2);
+      expect(response.status).toBe(200);
+      expect(response.body.workspaces).toHaveLength(2);
+      done();
+    });
+  });
+
   describe('Update Workspace [PUT] /api/v1/workspace/workspaceID', () => {
     it('should check if workspace owner', async done => {
       const workspace = await Workspace.create({

@@ -32,6 +32,20 @@ workspaceRoute.get('/:workspaceID', workspaceExists, async function(req, res) {
   res.status(200).json({ workspace });
 });
 
+workspaceRoute.get('/', async function(req, res, next) {
+  try {
+    const WorkspaceServiceInstance = new WorkspaceService();
+    const workspaces = await WorkspaceServiceInstance.getUserWorkspaces(
+      req.authUser.sub,
+    );
+    res.status(200).json({
+      workspaces,
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
 workspaceRoute.put(
   '/:workspaceID',
   workspaceExists,
