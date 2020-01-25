@@ -242,6 +242,38 @@ describe('Workspace Controller', () => {
       expect(invite.token).not.toBeNull();
       done();
     });
+
+    it('should not invite already invited user', async done => {
+      const email = 'inviteuser@email.com';
+      const workspace = await Workspace.create({
+        ...testWorkspace,
+        owner: authUser.user._id,
+        members: [authUser.user._id],
+      });
+      
+      await User.findByIdAndUpdate(authUser.user._id, {
+        $push: {
+          workspaces: workspace._id,
+        },
+      });
+
+      await request
+        .post(`/api/v1/workspace/${workspace._id}/invite`)
+        .send({ email })
+        .set('Authorization', authUser.token);
+      
+      const response = await request
+        .post(`/api/v1/workspace/${workspace._id}/invite`)
+        .send({ email })
+        .set('Authorization', authUser.token);
+
+      expect.assertions(2);
+      expect(response.status).toBe(400);
+      expect(response.body.error).toEqual({
+        message: `User with email ${email} has been invited already`,
+      });
+      done();
+    });
   });
 
   describe('Join Workspace [GET] /api/v1/workspace/:workspaceID/join/:token', () => {
