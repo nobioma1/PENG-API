@@ -274,6 +274,32 @@ describe('Workspace Controller', () => {
       });
       done();
     });
+
+    it('should not invite member to workspace', async done => {
+      const workspace = await Workspace.create({
+        ...testWorkspace,
+        owner: authUser.user._id,
+        members: [authUser.user._id],
+      });
+      
+      await User.findByIdAndUpdate(authUser.user._id, {
+        $push: {
+          workspaces: workspace._id,
+        },
+      });
+
+      const response = await request
+        .post(`/api/v1/workspace/${workspace._id}/invite`)
+        .send({ email: testUser.email })
+        .set('Authorization', authUser.token);
+
+      expect.assertions(2);
+      expect(response.status).toBe(400);
+      expect(response.body.error).toEqual({
+        message: `User with email ${testUser.email} is already a member of workspace.`,
+      });
+      done();
+    });
   });
 
   describe('Join Workspace [GET] /api/v1/workspace/:workspaceID/join/:token', () => {
