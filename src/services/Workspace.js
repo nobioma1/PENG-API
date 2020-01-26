@@ -44,7 +44,9 @@ class WorkspaceService {
     try {
       const workspaces = await this.workspaceModel
         .find({
-          owner: userId,
+          members: {
+            $in: [userId],
+          },
         })
         .lean();
 
