@@ -95,13 +95,19 @@ describe('Workspace Controller', () => {
 
   describe('GET User Workspaces [GET] /api/v1/workspace/', () => {
     it('should get user workspaces', async done => {
-      await Workspace.create({
-        ...testWorkspace,
-        owner: authUser.user._id,
+      const workspaceAdmin = await User.create({
+        ...testUser,
+        email: 'test_user_admin@email.com',
       });
       await Workspace.create({
         ...testWorkspace,
         owner: authUser.user._id,
+        members: [authUser.user._id, workspaceAdmin._id],
+      });
+      await Workspace.create({
+        ...testWorkspace,
+        owner: workspaceAdmin._id,
+        members: [workspaceAdmin._id, authUser.user._id],
       });
       const response = await request
         .get(`/api/v1/workspace`)
@@ -250,7 +256,7 @@ describe('Workspace Controller', () => {
         owner: authUser.user._id,
         members: [authUser.user._id],
       });
-      
+
       await User.findByIdAndUpdate(authUser.user._id, {
         $push: {
           workspaces: workspace._id,
@@ -261,7 +267,7 @@ describe('Workspace Controller', () => {
         .post(`/api/v1/workspace/${workspace._id}/invite`)
         .send({ email })
         .set('Authorization', authUser.token);
-      
+
       const response = await request
         .post(`/api/v1/workspace/${workspace._id}/invite`)
         .send({ email })
@@ -281,7 +287,7 @@ describe('Workspace Controller', () => {
         owner: authUser.user._id,
         members: [authUser.user._id],
       });
-      
+
       await User.findByIdAndUpdate(authUser.user._id, {
         $push: {
           workspaces: workspace._id,
@@ -457,16 +463,11 @@ describe('Workspace Controller', () => {
       const workspace = await Workspace.create({
         ...testWorkspace,
         owner: authUser.user._id,
-        members: [authUser.user._id],
+        members: [authUser.user._id, user._id],
       });
       await User.findByIdAndUpdate(authUser.user._id, {
         $push: {
           workspaces: workspace._id,
-        },
-      });
-      await Workspace.findByIdAndUpdate(workspace._id, {
-        $push: {
-          members: user._id,
         },
       });
       await User.findByIdAndUpdate(user._id, {
