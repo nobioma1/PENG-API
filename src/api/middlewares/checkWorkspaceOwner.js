@@ -1,17 +1,15 @@
-const { User } = require('../../models');
+const { Workspace } = require('../../models');
 const ErrorHandler = require('../../utils/ErrorHandler');
 
 async function checkWorkspaceOwner(req, res, next) {
   try {
     const { authUser, workspace } = req;
-    const owner = await User.findOne({
-      _id: authUser.sub,
-      workspaces: {
-        $in: [workspace._id],
-      },
+    const ownerWorkspace = await Workspace.findOne({
+      _id: workspace._id,
+      owner: authUser.sub,
     }).lean();
 
-    if (owner) {
+    if (ownerWorkspace) {
       return next();
     }
 
