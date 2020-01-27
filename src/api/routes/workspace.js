@@ -31,8 +31,13 @@ workspaceRoute.post('/', validate(workspaceSchema), async function(
 });
 
 workspaceRoute.get('/:workspaceID', workspaceExists, async function(req, res) {
-  const { workspace } = req;
-  res.status(200).json({ workspace });
+  const { workspace, authUser } = req;
+  res.status(200).json({
+    workspace: {
+      ...workspace,
+      isAdmin: `${authUser.sub}` === `${workspace.owner}`,
+    },
+  });
 });
 
 workspaceRoute.get('/', async function(req, res, next) {

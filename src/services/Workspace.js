@@ -60,7 +60,7 @@ class WorkspaceService {
     try {
       const updatedWorkspace = await this.workspaceModel
         .findByIdAndUpdate(
-          workspace.id,
+          workspace._id,
           {
             ...updateInput,
           },
@@ -157,7 +157,7 @@ class WorkspaceService {
   async removeMember(workspace, memberID) {
     try {
       const workspaceRecord = await this.workspaceModel.findByIdAndUpdate(
-        workspace.id,
+        workspace._id,
         {
           $pull: {
             members: memberID,

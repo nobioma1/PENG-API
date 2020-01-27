@@ -86,9 +86,10 @@ describe('Workspace Controller', () => {
       const response = await request
         .get(`/api/v1/workspace/${workspace._id}`)
         .set('Authorization', authUser.token);
-      expect.assertions(2);
+      expect.assertions(3);
       expect(response.status).toBe(200);
       expect(response.body.workspace.name).toEqual(testWorkspace.name);
+      expect(response.body.workspace.isAdmin).toBeTruthy();
       done();
     });
   });
