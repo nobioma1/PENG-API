@@ -9,6 +9,7 @@ const checkWorkspaceInvite = require('../middlewares/checkWorkspaceInvite');
 const checkMembership = require('../middlewares/checkMembership');
 const checkInvite = require('../middlewares/checkInvite');
 const checkAlreadyMember = require('../middlewares/checkAlreadyMember');
+const ownerCantLeaveWorkspace = require('../middlewares/ownerCantLeaveWorkspace');
 
 workspaceRoute.post('/', validate(workspaceSchema), async function(
   req,
@@ -154,6 +155,7 @@ workspaceRoute.delete(
   '/:workspaceID/leave',
   workspaceExists,
   checkMembership,
+  ownerCantLeaveWorkspace,
   async function(req, res, next) {
     try {
       const WorkspaceServiceInstance = new WorkspaceService();

@@ -489,5 +489,28 @@ describe('Workspace Controller', () => {
       });
       done();
     });
+
+    it('owner should not leave workspace', async done => {
+      const workspace = await Workspace.create({
+        ...testWorkspace,
+        owner: authUser.user._id,
+        members: [authUser.user._id],
+      });
+      await User.findByIdAndUpdate(authUser.user._id, {
+        $push: {
+          workspaces: workspace._id,
+        },
+      });
+      const response = await request
+        .delete(`/api/v1/workspace/${workspace._id}/leave`)
+        .set('Authorization', authUser.token);
+
+      expect.assertions(2);
+      expect(response.status).toBe(400);
+      expect(response.body.error).toEqual({
+        message: 'Workspace Admin can not leave Workspace',
+      });
+      done();
+    });
   });
 });
