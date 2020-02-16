@@ -3,7 +3,9 @@ const ErrorHandler = require('../../utils/ErrorHandler');
 
 async function workspaceExists(req, res, next) {
   try {
-    const workspace = await Workspace.findById(req.params.workspaceID).lean();
+    const workspace = await Workspace.findById(req.params.workspaceID)
+      .populate('clients')
+      .lean();
     if (workspace) {
       req.workspace = workspace;
       return next();
