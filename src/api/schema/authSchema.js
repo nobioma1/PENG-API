@@ -26,7 +26,6 @@ exports.loginSchema = Joi.object({
     .required(),
   password: Joi.string()
     .label('Password')
-    .pattern(/^[a-zA-Z0-9]{3,30}$/)
     .required(),
 });
 
